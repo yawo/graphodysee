@@ -131,6 +131,88 @@ export const norseMythologyCorpusFr: MythologyGraph = {
       ],
     },
     {
+      id: 'char_baldr',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Baldr le Lumineux',
+      summary:
+        'Fils bien-aimé d’Odin et de Frigg, parangon de bonté, de clarté et de pureté. Percé par une flèche de gui guidée par la perfidie de Loki, son trépas déclenche l’irréversible marche vers le Ragnarök.',
+      attributes: {
+        Surnom: 'Le Dieu Bon et Radieux',
+        Demeure: 'Breidablik',
+        Funérailles: 'Bûcher dressé sur son grand navire Hringhorni',
+      },
+      source_refs: [
+        {
+          text: 'Edda Poétique, Völuspá',
+          line_range: '31-33',
+          citation_quote: 'Je vis pour Baldr, le dieu sanglant, fils d’Odin, son destin caché ; plus haut que les plaines poussait, mince et noble, le gui.',
+        },
+      ],
+      timeline_order: 4,
+    },
+    {
+      id: 'char_heimdall',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Heimdall (Le Dieu Veilleur)',
+      summary:
+        'Le gardien étincelant des Ases et du pont de Bifröst, fils de neuf vagues-mères. Ses sens prodigieux lui permettent d’entendre l’herbe pousser et de voir à cent lieues ; il sonne du Gjallarhorn pour appeler les dieux au combat suprême.',
+      attributes: {
+        Titre: 'Le Dieu Blanc (Hvítastr Ása)',
+        Demeure: 'Himinbjörg aux confins d’Asgard',
+        Attributs: ['Gjallarhorn (Le Cor de Guerre)', 'Cheval Gulltoppr', 'Épée Höfud'],
+      },
+      source_refs: [
+        {
+          text: 'Edda Poétique, Völuspá',
+          line_range: '46',
+          citation_quote: 'Heimdall sonne haut, la corne est dressée dans les cieux ; Odin s’entretient avec la tête de Mímir.',
+        },
+      ],
+      timeline_order: 5,
+    },
+    {
+      id: 'char_jormungandr',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Jörmungandr (Le Serpent de Midgard)',
+      summary:
+        'Le gigantesque serpent des profondeurs, enfant de Loki et d’Angrboda, précipité par Odin dans l’océan cosmique. Il s’est tellement accru qu’il ceint la terre entière en se mordant la queue ; son venin détruira Thor au Ragnarök.',
+      attributes: {
+        Nature: 'Monstre marin cosmique ceignant le monde',
+        Adversaire_Mortel: 'Thor (Þórr)',
+      },
+      source_refs: [
+        {
+          text: 'Edda Poétique, Hymiskvida',
+          line_range: '22-24',
+          citation_quote: 'Thor hissa le serpent luisant sur le plat-bord ; levant son marteau, il frappa la tête affreuse du monstre des flots.',
+        },
+      ],
+      timeline_order: 5,
+    },
+    {
+      id: 'place_bifrost',
+      type: 'Place',
+      corpus_id: 'norse-mythology',
+      label: 'Bifröst (Le Pont de l’Arc-en-Ciel Flamboyant)',
+      summary:
+        'La passerelle sacrée tricolore unissant la terre des hommes (Midgard) à la citadelle des dieux (Asgard), gardée sans relâche par Heimdall contre les assauts des géants.',
+      attributes: {
+        Couleurs: 'Trois rubans de feu inextinguible',
+        Gardien: 'Heimdall',
+      },
+      source_refs: [
+        {
+          text: 'Edda en Prose, Gylfaginning',
+          chapter: '13',
+          citation_quote: 'Les dieux bâtirent un pont de la terre au ciel nommé Bifröst, que les mortels appellent l’arc-en-ciel.',
+        },
+      ],
+      timeline_order: 1,
+    },
+    {
       id: 'place_yggdrasil',
       type: 'Place',
       corpus_id: 'norse-mythology',
@@ -296,6 +378,46 @@ export const norseMythologyCorpusFr: MythologyGraph = {
       description: 'Le crépuscule des dieux est la manifestation suprême du destin des Nornes',
       corpus_id: 'norse-mythology',
       source_refs: [{ text: 'Völuspá' }],
+    },
+    {
+      id: 'edge_heimdall_bifrost_fr',
+      source: 'char_heimdall',
+      target: 'place_bifrost',
+      type: 'GUARDS',
+      label: 'GARDIEN INFATIGABLE DU',
+      description: 'Heimdall monte la garde perpétuelle contre les assauts des géants de givre et de feu.',
+      corpus_id: 'norse-mythology',
+      source_refs: [{ text: 'Gylfaginning, Ch. 27' }],
+    },
+    {
+      id: 'edge_thor_jormungandr_fr',
+      source: 'char_thor',
+      target: 'char_jormungandr',
+      type: 'FOUGHT',
+      label: 'ADVERSAIRE MORTEL DE',
+      description: 'Thor abat le serpent de Midgard au Ragnarök avant de s’écrouler foudroyé par son venin après neuf pas.',
+      corpus_id: 'norse-mythology',
+      source_refs: [{ text: 'Völuspá, 55-56' }],
+    },
+    {
+      id: 'edge_heimdall_loki_fr',
+      source: 'char_heimdall',
+      target: 'char_loki',
+      type: 'FOUGHT',
+      label: 'MEURTRIERS RÉCIPROQUES',
+      description: 'Heimdall et Loki s’entretuent lors du duel final à l’apogée du Ragnarök.',
+      corpus_id: 'norse-mythology',
+      source_refs: [{ text: 'Gylfaginning, Ch. 51' }],
+    },
+    {
+      id: 'edge_loki_baldr_fr',
+      source: 'char_loki',
+      target: 'char_baldr',
+      type: 'SLAYED',
+      label: 'PROVOQUE LE TRÉPAS DE',
+      description: 'Loki guida le rameau de gui mortel dans la main du dieu aveugle Hödr.',
+      corpus_id: 'norse-mythology',
+      source_refs: [{ text: 'Gylfaginning, Ch. 49' }],
     },
   ],
 };

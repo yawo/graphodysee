@@ -132,6 +132,91 @@ export const norseMythologyCorpus: MythologyGraph = {
       timeline_order: 4,
     },
     {
+      id: 'char_freyja',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Freyja',
+      summary:
+        'Vanir goddess of love, beauty, fertility, gold, seidr magic, and battle death. She receives half of all warriors who fall in combat in her meadow Fólkvangr, preceding even Odin’s share.',
+      attributes: {
+        Domain: ['Love', 'Seiðr Magic', 'Battle Slain', 'Fertility', 'Gold'],
+        Realm: 'Fólkvangr (Sessrúmnir)',
+        Possessions: ['Brísingamen (Golden Necklace)', 'Falcon Cloak (Feathered Flight)', 'Chariot drawn by blue cats'],
+      },
+      source_refs: [
+        {
+          text: 'Poetic Edda, Grímnismál',
+          line_range: '14',
+          citation_quote: 'Fólkvang is the ninth, there Freyja directs the sittings in the hall; half the slain she chooses every day, and Odin gets the other half.',
+        },
+      ],
+      timeline_order: 2,
+    },
+    {
+      id: 'char_heimdall',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Heimdall (The White God)',
+      summary:
+        'The gleaming guardian of the gods and the Bifröst bridge, born of nine mothers. He requires less sleep than a bird, can see 100 leagues by night or day, hears wool grow on sheep, and blows the Gjallarhorn to summon all beings to the final clash.',
+      attributes: {
+        Domain: ['Vigilance', 'Boundary Guardian', 'Divine Senses'],
+        Title: 'The White As (Hvítastr Ása)',
+        Possessions: ['Gjallarhorn (Cosmic War Horn)', 'Gulltoppr (Golden-maned horse)', 'Sword Höfuð'],
+        Fate: 'Slays and is slain by Loki at the climax of Ragnarök',
+      },
+      source_refs: [
+        {
+          text: 'Poetic Edda, Völuspá',
+          line_range: '46',
+          citation_quote: 'Loud blows Heimdall, the horn is in the air; Odin speaks with Mím’s head; the ancient tree groans and the giant breaks free.',
+        },
+      ],
+      timeline_order: 5,
+    },
+    {
+      id: 'char_jormungandr',
+      type: 'Character',
+      corpus_id: 'norse-mythology',
+      label: 'Jörmungandr (The Midgard Serpent)',
+      summary:
+        'Colossal venomous serpent child of Loki and Angrboða, cast into the cosmic sea by Odin. Grown so vast he encircles Midgard and grasps his own tail in his mouth; his thrashing at Ragnarök floods the continents with oceanic poison.',
+      attributes: {
+        Domain: ['Cosmic Boundary', 'Oceanic Depths', 'Lethal Venom'],
+        Nemesis: 'Thor',
+        Fate: 'Slain by Thor’s hammer Mjölnir; kills Thor with venom after nine paces',
+      },
+      source_refs: [
+        {
+          text: 'Poetic Edda, Hymiskviða',
+          line_range: '22-24',
+          citation_quote: 'Thor dragged the glistening serpent up onto the gunwale; with hammer raised, the fierce monster struck the hideous head of the serpent of the deep.',
+        },
+      ],
+      timeline_order: 5,
+    },
+    {
+      id: 'place_bifrost',
+      type: 'Place',
+      corpus_id: 'norse-mythology',
+      label: 'Bifröst (The Shimmering Rainbow Bridge)',
+      summary:
+        'The flaming tripartite rainbow bridge connecting Midgard (realm of mortals) to Asgard (realm of gods), defended by Heimdall against giants until shattered by the sons of Muspell.',
+      attributes: {
+        Appearance: 'Three-stranded burning rainbow of red, blue, and green fire',
+        Guardian: 'Heimdall residing at Himinbjörg',
+        Destruction: 'Collapses under the weight of Surtr and the fire giants of Muspelheim',
+      },
+      source_refs: [
+        {
+          text: 'Prose Edda, Gylfaginning',
+          chapter: 'Chapter 13',
+          citation_quote: 'Have you not been told that the gods made a bridge from earth to heaven called Bifröst? You will have seen it, maybe you call it the rainbow. It has three colors and is very strong.',
+        },
+      ],
+      timeline_order: 1,
+    },
+    {
       id: 'place_yggdrasil',
       type: 'Place',
       corpus_id: 'norse-mythology',
@@ -349,6 +434,46 @@ export const norseMythologyCorpus: MythologyGraph = {
       label: 'Ultimate Fulfillment of',
       description: 'Ragnarök represents the inescapable destiny decreed by the Norns.',
       source_refs: [{ text: 'Poetic Edda, Völuspá', line_range: '20' }],
+      corpus_id: 'norse-mythology',
+    },
+    {
+      id: 'e_heimdall_bifrost',
+      source: 'char_heimdall',
+      target: 'place_bifrost',
+      type: 'GUARDS',
+      label: 'Watchman of',
+      description: 'Heimdall keeps ceaseless vigil against mountain and frost giants atop the rainbow bridge.',
+      source_refs: [{ text: 'Prose Edda, Gylfaginning', chapter: 'Chapter 27' }],
+      corpus_id: 'norse-mythology',
+    },
+    {
+      id: 'e_thor_jormungandr',
+      source: 'char_thor',
+      target: 'char_jormungandr',
+      type: 'FOUGHT',
+      label: 'Mortal Nemesis of',
+      description: 'Thor battles the Midgard Serpent during a fishing expedition with Hymir and in their lethal mutual destruction at Ragnarök.',
+      source_refs: [{ text: 'Poetic Edda, Völuspá', line_range: '55-56' }],
+      corpus_id: 'norse-mythology',
+    },
+    {
+      id: 'e_heimdall_loki',
+      source: 'char_heimdall',
+      target: 'char_loki',
+      type: 'FOUGHT',
+      label: 'Reciprocal Slayers at Ragnarök',
+      description: 'Heimdall and Loki fight to the death at the Singasteinn and in their apocalyptic final duel.',
+      source_refs: [{ text: 'Prose Edda, Gylfaginning', chapter: 'Chapter 51' }],
+      corpus_id: 'norse-mythology',
+    },
+    {
+      id: 'e_freyja_odin',
+      source: 'char_freyja',
+      target: 'char_odin',
+      type: 'ALLIED_WITH',
+      label: 'Shares Slain Warriors with',
+      description: 'Freyja introduced Odin to the mystical art of seiðr and divides the noble battlefield fallen with him.',
+      source_refs: [{ text: 'Ynglinga Saga', chapter: 'Chapter 4' }],
       corpus_id: 'norse-mythology',
     },
   ],

@@ -4,16 +4,19 @@ import { egyptianMythologyCorpus } from './egyptian-mythology';
 import { norseMythologyCorpus } from './norse-mythology';
 import { hinduMythologyCorpus } from './hindu-mythology';
 import { catholicSaintsCorpus } from './catholic-saints';
+import { mesopotamianCorpus } from './mesopotamian-gilgamesh';
 
 import { greekOdysseyCorpusFr } from './greek-odyssey-fr';
 import { egyptianMythologyCorpusFr } from './egyptian-mythology-fr';
 import { norseMythologyCorpusFr } from './norse-mythology-fr';
 import { hinduMythologyCorpusFr } from './hindu-mythology-fr';
 import { catholicSaintsCorpusFr } from './catholic-saints-fr';
+import { mesopotamianCorpusFr } from './mesopotamian-gilgamesh-fr';
 
 export const INITIAL_CORPORA_EN: Record<string, MythologyGraph> = {
   'greek-odyssey': greekOdysseyCorpus,
   'egyptian-mythology': egyptianMythologyCorpus,
+  'mesopotamian-gilgamesh': mesopotamianCorpus,
   'norse-mythology': norseMythologyCorpus,
   'hindu-mythology': hinduMythologyCorpus,
   'catholic-saints': catholicSaintsCorpus,
@@ -22,6 +25,7 @@ export const INITIAL_CORPORA_EN: Record<string, MythologyGraph> = {
 export const INITIAL_CORPORA_FR: Record<string, MythologyGraph> = {
   'greek-odyssey': greekOdysseyCorpusFr,
   'egyptian-mythology': egyptianMythologyCorpusFr,
+  'mesopotamian-gilgamesh': mesopotamianCorpusFr,
   'norse-mythology': norseMythologyCorpusFr,
   'hindu-mythology': hinduMythologyCorpusFr,
   'catholic-saints': catholicSaintsCorpusFr,
