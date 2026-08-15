@@ -6,16 +6,17 @@ import {
   HybridSearchResult,
   GraphPath,
 } from '../types/mythology';
+import { Language } from '../i18n/translations';
 
-export async function fetchCorpora(): Promise<CorpusManifest[]> {
-  const res = await fetch('/api/corpora');
+export async function fetchCorpora(lang: Language = 'en'): Promise<CorpusManifest[]> {
+  const res = await fetch(`/api/corpora?lang=${encodeURIComponent(lang)}`);
   if (!res.ok) throw new Error('Failed to fetch corpora');
   const data = await res.json();
   return data.corpora;
 }
 
-export async function fetchGraph(corpusId: string): Promise<MythologyGraph> {
-  const res = await fetch(`/api/graph?corpus_id=${encodeURIComponent(corpusId)}`);
+export async function fetchGraph(corpusId: string, lang: Language = 'en'): Promise<MythologyGraph> {
+  const res = await fetch(`/api/graph?corpus_id=${encodeURIComponent(corpusId)}&lang=${encodeURIComponent(lang)}`);
   if (!res.ok) throw new Error(`Failed to fetch graph for corpus ${corpusId}`);
   const data = await res.json();
   return data.graph;
@@ -24,10 +25,11 @@ export async function fetchGraph(corpusId: string): Promise<MythologyGraph> {
 export async function fetchCharacter(
   entityId: string,
   corpusId: string,
-  hops: number = 1
+  hops: number = 1,
+  lang: Language = 'en'
 ): Promise<{ entity: GraphNode; subgraph: { nodes: GraphNode[]; edges: any[]; related_events: GraphNode[] } }> {
   const res = await fetch(
-    `/api/character/${encodeURIComponent(entityId)}?corpus_id=${encodeURIComponent(corpusId)}&hops=${hops}`
+    `/api/character/${encodeURIComponent(entityId)}?corpus_id=${encodeURIComponent(corpusId)}&hops=${hops}&lang=${encodeURIComponent(lang)}`
   );
   if (!res.ok) throw new Error(`Failed to fetch character ${entityId}`);
   return await res.json();
@@ -36,10 +38,11 @@ export async function fetchCharacter(
 export async function fetchShortestPath(
   startId: string,
   endId: string,
-  corpusId: string
+  corpusId: string,
+  lang: Language = 'en'
 ): Promise<GraphPath | null> {
   const res = await fetch(
-    `/api/path?start=${encodeURIComponent(startId)}&end=${encodeURIComponent(endId)}&corpus_id=${encodeURIComponent(corpusId)}`
+    `/api/path?start=${encodeURIComponent(startId)}&end=${encodeURIComponent(endId)}&corpus_id=${encodeURIComponent(corpusId)}&lang=${encodeURIComponent(lang)}`
   );
   if (!res.ok) throw new Error('Failed to find path');
   const data = await res.json();
@@ -48,12 +51,13 @@ export async function fetchShortestPath(
 
 export async function performHybridSearch(
   query: string,
-  corpusId: string
+  corpusId: string,
+  lang: Language = 'en'
 ): Promise<HybridSearchResult> {
   const res = await fetch('/api/hybrid-search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, corpus_id: corpusId }),
+    body: JSON.stringify({ query, corpus_id: corpusId, lang }),
   });
   if (!res.ok) throw new Error('Hybrid search failed');
   return await res.json();
@@ -63,7 +67,8 @@ export async function generatePodcast(
   entityId: string,
   corpusId: string,
   toneOverride?: string,
-  lengthSeconds?: number
+  lengthSeconds?: number,
+  lang: Language = 'en'
 ): Promise<PodcastEpisode> {
   const res = await fetch('/api/podcast', {
     method: 'POST',
@@ -73,6 +78,7 @@ export async function generatePodcast(
       corpus_id: corpusId,
       tone_override: toneOverride,
       length_seconds: lengthSeconds,
+      lang,
     }),
   });
   if (!res.ok) {
@@ -87,7 +93,8 @@ export async function extractKnowledgeGraph(
   text: string,
   corpusName?: string,
   cultureName?: string,
-  era?: string
+  era?: string,
+  lang: Language = 'en'
 ): Promise<MythologyGraph> {
   const res = await fetch('/api/extract-graph', {
     method: 'POST',
@@ -97,6 +104,7 @@ export async function extractKnowledgeGraph(
       corpus_name: corpusName,
       culture_name: cultureName,
       era,
+      lang,
     }),
   });
   if (!res.ok) {
@@ -115,3 +123,4 @@ export async function saveCustomCorpus(graph: MythologyGraph): Promise<void> {
   });
   if (!res.ok) throw new Error('Failed to save custom corpus');
 }
+

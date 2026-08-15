@@ -1,5 +1,6 @@
 import React from 'react';
 import { PodcastEpisode } from '../types/mythology';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Radio, Play, Trash2, X, Clock, Sparkles } from 'lucide-react';
 
 interface PodcastLibraryModalProps {
@@ -15,6 +16,7 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
   onDeleteEpisode,
   onClose,
 }) => {
+  const { lang, t } = useLanguage();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
@@ -29,10 +31,10 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white font-serif">
-                Mythic Podcast Archives
+                {t.library.title}
               </h2>
               <p className="text-xs text-slate-400">
-                {episodes.length} Generated Episodes Available for Playback
+                {t.library.episodesAvailable(episodes.length)}
               </p>
             </div>
           </div>
@@ -49,9 +51,9 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
           {episodes.length === 0 ? (
             <div className="py-12 text-center text-slate-400 space-y-2">
               <Sparkles className="w-8 h-8 text-amber-400/50 mx-auto" />
-              <p className="text-sm">No podcast episodes generated yet.</p>
+              <p className="text-sm">{t.library.noEpisodes}</p>
               <p className="text-xs text-slate-500">
-                Select any character or god in the graph and click "Generate Podcast" to create an episodic audio chronicle!
+                {t.library.noEpisodesSub}
               </p>
             </div>
           ) : (
@@ -70,15 +72,15 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span>Entity: {ep.entity_name} ({ep.entity_type})</span>
+                    <span>{t.library.entity}: {ep.entity_name} ({t.types[ep.entity_type] || ep.entity_type})</span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {Math.round(ep.duration_seconds / 60)} min ({ep.sections.length} chapters)
+                      {Math.round(ep.duration_seconds / 60)} min ({t.library.chapters(ep.sections.length)})
                     </span>
                     <span>•</span>
                     <span className="text-[11px] text-slate-500">
-                      {new Date(ep.created_at).toLocaleDateString()}
+                      {new Date(ep.created_at).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US')}
                     </span>
                   </div>
                 </div>
@@ -90,15 +92,15 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
                       onClose();
                     }}
                     className="p-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition-all shadow-md flex items-center gap-1.5 text-xs"
-                    title="Play episode"
+                    title={t.library.play}
                   >
                     <Play className="w-4 h-4 fill-current" />
-                    Play
+                    {t.library.play}
                   </button>
                   <button
                     onClick={() => onDeleteEpisode(ep.id)}
                     className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-700/50 transition-colors"
-                    title="Delete episode"
+                    title={t.library.delete}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -111,3 +113,4 @@ export const PodcastLibraryModal: React.FC<PodcastLibraryModalProps> = ({
     </div>
   );
 };
+

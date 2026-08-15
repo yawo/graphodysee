@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GraphNode, GraphPath, CorpusManifest } from '../types/mythology';
 import { fetchShortestPath } from '../api/client';
+import { useLanguage } from '../i18n/LanguageContext';
 import { Compass, ArrowRight, Sparkles, X, Check, Eye } from 'lucide-react';
 
 interface PathFinderModalProps {
@@ -20,6 +21,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
   onApplyPath,
   onSelectNode,
 }) => {
+  const { lang, t } = useLanguage();
   const [startId, setStartId] = useState<string>(initialStartNode?.id || (nodes[0]?.id || ''));
   const [endId, setEndId] = useState<string>(nodes[1]?.id || '');
   const [pathResult, setPathResult] = useState<GraphPath | null>(null);
@@ -31,7 +33,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
     setLoading(true);
     setNoPathFound(false);
     try {
-      const res = await fetchShortestPath(startId, endId, corpusManifest.id);
+      const res = await fetchShortestPath(startId, endId, corpusManifest.id, lang);
       if (res && res.nodes.length > 0) {
         setPathResult(res);
         onApplyPath(res);
@@ -62,10 +64,10 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white font-serif">
-                Mythic Connection Finder
+                {t.path.finderTitle}
               </h2>
               <p className="text-xs text-slate-400">
-                Discover the shortest relational path between two entities in {corpusManifest.name}
+                {t.path.finderSubtitle(corpusManifest.name)}
               </p>
             </div>
           </div>
@@ -82,7 +84,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-slate-400 block mb-1">
-                Origin Entity (Start)
+                {t.path.originEntity}
               </label>
               <select
                 id="pathfinder-start-select"
@@ -92,7 +94,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
               >
                 {nodes.map((n) => (
                   <option key={n.id} value={n.id}>
-                    {n.label} ({n.type})
+                    {n.label} ({t.types[n.type] || n.type})
                   </option>
                 ))}
               </select>
@@ -100,7 +102,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
 
             <div>
               <label className="text-xs font-semibold text-slate-400 block mb-1">
-                Destination Entity (Target)
+                {t.path.targetEntity}
               </label>
               <select
                 id="pathfinder-end-select"
@@ -110,7 +112,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
               >
                 {nodes.map((n) => (
                   <option key={n.id} value={n.id}>
-                    {n.label} ({n.type})
+                    {n.label} ({t.types[n.type] || n.type})
                   </option>
                 ))}
               </select>
@@ -128,7 +130,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                Find Mythic Path
+                {t.path.findButton}
               </>
             )}
           </button>
@@ -138,15 +140,15 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
         <div className="p-5 space-y-3 max-h-72 overflow-y-auto">
           {noPathFound && (
             <p className="text-xs text-amber-400 italic text-center py-4">
-              No direct or indirect graph connection found between these two entities.
+              {t.path.noPathFound}
             </p>
           )}
 
           {pathResult && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-semibold text-amber-300">
-                <span>Path Found ({pathResult.edges.length} hops)</span>
-                <span className="text-[11px] text-emerald-400">Highlighted on Canvas</span>
+                <span>{t.path.pathFound(pathResult.edges.length)}</span>
+                <span className="text-[11px] text-emerald-400">{t.path.highlighted}</span>
               </div>
 
               {/* Step-by-step route visualization */}
@@ -170,7 +172,7 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
                             {node.label}
                           </span>
                           <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-700 text-slate-300">
-                            {node.type}
+                            {t.types[node.type] || node.type}
                           </span>
                         </div>
                         <Eye className="w-4 h-4 text-slate-400 hover:text-white" />
@@ -194,3 +196,4 @@ export const PathFinderModal: React.FC<PathFinderModalProps> = ({
     </div>
   );
 };
+

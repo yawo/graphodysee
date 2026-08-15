@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { performHybridSearch } from '../api/client';
 import { HybridSearchResult, GraphNode, CorpusManifest } from '../types/mythology';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   Search,
   Sparkles,
@@ -19,7 +20,7 @@ interface HybridSearchModalProps {
   onSelectNode: (node: GraphNode) => void;
 }
 
-const SAMPLE_QUERIES: Record<string, string[]> = {
+const SAMPLE_QUERIES_EN: Record<string, string[]> = {
   'greek-odyssey': [
     'How did Odysseus blind Polyphemus and escape his cave?',
     'What was Circe’s magic and how did Hermes help Odysseus resist it?',
@@ -47,24 +48,54 @@ const SAMPLE_QUERIES: Record<string, string[]> = {
   ],
 };
 
+const SAMPLE_QUERIES_FR: Record<string, string[]> = {
+  'greek-odyssey': [
+    'Comment Ulysse a-t-il aveuglé Polyphème pour s’échapper ?',
+    'Quelle était la magie de Circé et comment Hermès a-t-il aidé Ulysse ?',
+    'Pourquoi Poséidon poursuit-il Ulysse de sa rancune ?',
+  ],
+  'egyptian-mythology': [
+    'Pourquoi Seth a-t-il assassiné et dépecé Osiris ?',
+    'Comment Anubis a-t-il assisté Isis lors de la première momification ?',
+    'Que se passe-t-il lors de la pesée du cœur devant la plume de Maât ?',
+  ],
+  'norse-mythology': [
+    'Comment Loki a-t-il orchestré le meurtre de Baldr avec du gui ?',
+    'Pourquoi Odin a-t-il sacrifié son œil à la source de Mímir ?',
+    'Quelle est la prophétie du Ragnarök et du serpent Jörmungandr ?',
+  ],
+  'hindu-mythology': [
+    'Comment Krishna a-t-il transmis la Bhagavad-Gita à Arjuna avant la guerre ?',
+    'Pourquoi Hanuman a-t-il soulevé le mont Dronagiri pour la plante Sanjeevani ?',
+    'Quelle est la notion de Dharma dans les épreuves épiques de Rama ?',
+  ],
+  'catholic-saints': [
+    'Comment Saint Michel a-t-il terrassé Lucifer et le dragon ?',
+    'Quelles voix ont guidé Sainte Jeanne d’Arc à Domrémy et Orléans ?',
+    'Comment Saint François d’Assise a-t-il reçu les stigmates sacrés ?',
+  ],
+};
+
 export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
   corpusManifest,
   onClose,
   onSelectNode,
 }) => {
+  const { lang, t } = useLanguage();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<HybridSearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const sampleQueries = SAMPLE_QUERIES[corpusManifest.id] || SAMPLE_QUERIES['greek-odyssey'];
+  const queryDict = lang === 'fr' ? SAMPLE_QUERIES_FR : SAMPLE_QUERIES_EN;
+  const sampleQueries = queryDict[corpusManifest.id] || queryDict['greek-odyssey'];
 
   const handleSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await performHybridSearch(searchQuery, corpusManifest.id);
+      const res = await performHybridSearch(searchQuery, corpusManifest.id, lang);
       setResult(res);
     } catch (err: any) {
       setError(err.message || 'Search failed');
@@ -87,10 +118,10 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white font-serif">
-                GraphRAG Natural Language Engine
+                {t.search.engineTitle}
               </h2>
               <p className="text-xs text-slate-400">
-                Corpus-grounded retrieval for <strong>{corpusManifest.name}</strong>
+                {t.search.engineSubtitle(corpusManifest.name)}
               </p>
             </div>
           </div>
@@ -117,7 +148,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={`Ask any question about ${corpusManifest.name}...`}
+              placeholder={t.search.placeholder(corpusManifest.name)}
               className="w-full pl-10 pr-24 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 shadow-inner"
             />
             <button
@@ -131,7 +162,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
               ) : (
                 <>
                   <Sparkles className="w-3.5 h-3.5" />
-                  Query
+                  {t.search.queryButton}
                 </>
               )}
             </button>
@@ -139,7 +170,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
 
           {/* Sample Prompts */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-[11px] text-slate-400">Try asking:</span>
+            <span className="text-[11px] text-slate-400">{t.search.tryAsking}</span>
             {sampleQueries.map((sample, i) => (
               <button
                 key={i}
@@ -166,7 +197,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
           {loading && (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400 text-sm">
               <div className="w-8 h-8 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-              <span>Traversing knowledge graph and synthesizing grounded facts...</span>
+              <span>{t.search.loadingText}</span>
             </div>
           )}
 
@@ -177,7 +208,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
                 <div className="flex items-center justify-between text-xs font-semibold text-cyan-300">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-cyan-400" />
-                    Grounded GraphRAG Answer
+                    {t.search.groundedAnswer}
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
                     {result.reasoning}
@@ -192,7 +223,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
               {result.matching_nodes.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-xs uppercase tracking-wider font-semibold text-slate-400">
-                    Retrieved Graph Entities ({result.matching_nodes.length})
+                    {t.search.retrievedEntities(result.matching_nodes.length)}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {result.matching_nodes.map((node) => (
@@ -210,7 +241,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
                               {node.label}
                             </span>
                             <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-700 text-slate-300">
-                              {node.type}
+                              {t.types[node.type] || node.type}
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-400 line-clamp-2">
@@ -228,7 +259,7 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
               {result.source_refs.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-xs uppercase tracking-wider font-semibold text-slate-400">
-                    Verified Citations Grounding This Result
+                    {t.search.verifiedCitations}
                   </h3>
                   <div className="space-y-2">
                     {result.source_refs.slice(0, 4).map((ref, idx) => (
@@ -240,7 +271,9 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
                           <BookOpen className="w-3.5 h-3.5" />
                           {ref.text}
                           <span className="font-normal text-slate-400">
-                            {ref.book ? `Book ${ref.book}` : ''} {ref.line_range ? `ll. ${ref.line_range}` : ''} {ref.chapter ? `Cap. ${ref.chapter}` : ''}
+                            {ref.book ? (lang === 'fr' ? `Livre ${ref.book}` : `Book ${ref.book}`) : ''}{' '}
+                            {ref.line_range ? (lang === 'fr' ? `vers ${ref.line_range}` : `ll. ${ref.line_range}`) : ''}{' '}
+                            {ref.chapter ? (lang === 'fr' ? `Chap. ${ref.chapter}` : `Cap. ${ref.chapter}`) : ''}
                           </span>
                         </div>
                         {ref.citation_quote && (
@@ -260,3 +293,4 @@ export const HybridSearchModal: React.FC<HybridSearchModalProps> = ({
     </div>
   );
 };
+

@@ -5,6 +5,7 @@ import {
   NodeType,
   GraphPath,
 } from '../types/mythology';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   ZoomIn,
   ZoomOut,
@@ -66,6 +67,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   onToggleTypeFilter,
   searchHighlightId,
 }) => {
+  const { lang, t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -634,13 +636,13 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                   backgroundColor: active ? `${colors.fill}25` : undefined,
                   borderColor: active ? colors.stroke : undefined,
                 }}
-                title={`Toggle ${type}s`}
+                title={`${t.canvas.toggleType} ${t.types[type] || type}`}
               >
                 <span
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: active ? colors.stroke : '#64748b' }}
                 />
-                {type}
+                {t.types[type] || type}
               </button>
             );
           })}
@@ -654,7 +656,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               layoutMode === 'force' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-400 hover:text-white'
             }`}
-            title="Force-Directed Physics Layout"
+            title={t.canvas.forceLayout}
           >
             <Sparkles className="w-4 h-4" />
           </button>
@@ -664,7 +666,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               layoutMode === 'radial' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-400 hover:text-white'
             }`}
-            title="Radial Cluster by Type"
+            title={t.canvas.radialLayout}
           >
             <Compass className="w-4 h-4" />
           </button>
@@ -674,7 +676,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
               layoutMode === 'timeline' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-400 hover:text-white'
             }`}
-            title="Chronological Timeline Flow"
+            title={t.canvas.timelineLayout}
           >
             <Activity className="w-4 h-4" />
           </button>
@@ -687,7 +689,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 ${
             is3DMode ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-white'
           }`}
-          title="Toggle 3D Perspective Tilt"
+          title={t.canvas.isometricToggle}
         >
           <Layers className="w-3.5 h-3.5" />
           {is3DMode ? '3D' : '2D'}
@@ -698,7 +700,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           id="toggle-labels-btn"
           onClick={() => setShowLabels(!showLabels)}
           className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
-          title={showLabels ? 'Hide Labels' : 'Show Labels'}
+          title={showLabels ? t.canvas.hideLabels : t.canvas.showLabels}
         >
           {showLabels ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
         </button>
@@ -709,7 +711,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             id="zoom-in-btn"
             onClick={() => handleZoom('in')}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
-            title="Zoom In"
+            title={t.canvas.zoomIn}
           >
             <ZoomIn className="w-4 h-4" />
           </button>
@@ -717,7 +719,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             id="zoom-out-btn"
             onClick={() => handleZoom('out')}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
-            title="Zoom Out"
+            title={t.canvas.zoomOut}
           >
             <ZoomOut className="w-4 h-4" />
           </button>
@@ -725,7 +727,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             id="reset-view-btn"
             onClick={handleResetView}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
-            title="Reset View"
+            title={t.canvas.resetView}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -737,9 +739,9 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         <div className="absolute top-4 right-4 bg-amber-950/80 border border-amber-500/50 backdrop-blur-md rounded-xl px-3 py-1.5 text-xs text-amber-200 flex items-center gap-2 shadow-xl z-20">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
           <span>
-            Path: <strong>{highlightedPath.nodes[0]?.label}</strong> →{' '}
+            {t.path.pathLabel}: <strong>{highlightedPath.nodes[0]?.label}</strong> →{' '}
             <strong>{highlightedPath.nodes[highlightedPath.nodes.length - 1]?.label}</strong> (
-            {highlightedPath.edges.length} hops)
+            {highlightedPath.edges.length} {t.path.hops})
           </span>
         </div>
       )}
@@ -762,13 +764,13 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
                 color: TYPE_COLORS[hoveredNode.type].stroke,
               }}
             >
-              {hoveredNode.type}
+              {t.types[hoveredNode.type] || hoveredNode.type}
             </span>
           </div>
           <p className="text-slate-300 text-[11px] line-clamp-2 mb-1.5">{hoveredNode.summary}</p>
           <div className="flex items-center gap-3 text-[10px] text-slate-400">
-            <span>{hoveredNode.degree} connections</span>
-            <span>{hoveredNode.source_refs.length} primary citations</span>
+            <span>{hoveredNode.degree} {t.canvas.connections}</span>
+            <span>{hoveredNode.source_refs.length} {t.canvas.primaryCitations}</span>
           </div>
         </div>
       )}

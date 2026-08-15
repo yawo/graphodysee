@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { extractKnowledgeGraph } from '../api/client';
 import { MythologyGraph } from '../types/mythology';
+import { useLanguage } from '../i18n/LanguageContext';
 import { BookOpen, Sparkles, X, Plus, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface CorpusExtractorModalProps {
@@ -8,36 +9,52 @@ interface CorpusExtractorModalProps {
   onCorpusCreated: (graph: MythologyGraph) => void;
 }
 
-const SAMPLE_CUSTOM_TEXT = `Gilgamesh, King of Uruk, two-thirds divine and one-third human, ruled the great walled city of Uruk in ancient Mesopotamia. Oppressed by his arrogance, the citizens cried out to the sky-god Anu, who created Enkidu, a wild man formed of clay in the wilderness to be a companion and equal to Gilgamesh.
+const SAMPLE_CUSTOM_TEXT_EN = `Gilgamesh, King of Uruk, two-thirds divine and one-third human, ruled the great walled city of Uruk in ancient Mesopotamia. Oppressed by his arrogance, the citizens cried out to the sky-god Anu, who created Enkidu, a wild man formed of clay in the wilderness to be a companion and equal to Gilgamesh.
 
 Enkidu fought Gilgamesh at the gates of Uruk, but after their fierce battle they forged an unbreakable brotherhood. Together they journeyed to the Cedar Forest guarded by the ferocious monster Humbaba. Aided by the solar deity Shamash, they slew Humbaba and felled the sacred cedar trees.
 
 Later, the goddess Ishtar proposed marriage to Gilgamesh, but he rejected her disdainfully. Enraged, Ishtar sent the celestial Bull of Heaven to ravage Uruk. Gilgamesh and Enkidu together wrestled and killed the Bull of Heaven. As retribution for killing the Bull and Humbaba, the gods decreed that Enkidu must perish. Following Enkidu's tragic death, Gilgamesh traversed the Waters of Death to seek the immortal sage Utnapishtim to learn the secret of eternal life.`;
 
+const SAMPLE_CUSTOM_TEXT_FR = `Gilgamesh, roi d'Ourouk, aux deux tiers divin et un tiers humain, régnait sur la grande cité fortifiée d'Ourouk en Mésopotamie antique. Opprimés par son arrogance, les citoyens implorèrent le dieu du ciel Anou, qui façonna Enkidu, un homme sauvage formé d'argile dans la steppe pour être le compagnon et l'égal de Gilgamesh.
+
+Enkidu affronta Gilgamesh aux portes d'Ourouk, mais après leur féroce combat, ils forgèrent une fraternité indestructible. Ensemble, ils voyagèrent vers la Forêt des Cèdres gardée par le redoutable monstre Humbaba. Guidés par la divinité solaire Shamash, ils terrassèrent Humbaba et abattirent les cèdres sacrés.
+
+Plus tard, la déesse Ishtar demanda Gilgamesh en mariage, mais le roi la rejeta avec dédain. Furieuse, Ishtar envoya le Taureau Céleste dévaster Ourouk. Gilgamesh et Enkidu combattirent et tuèrent le Taureau Céleste. En châtiment pour avoir occis le Taureau et Humbaba, les dieux décrétèrent la mort d'Enkidu. Après le trépas tragique d'Enkidu, Gilgamesh traversa les Eaux de la Mort à la recherche du sage immortel Outanapishtim pour percer le secret de la vie éternelle.`;
+
 export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
   onClose,
   onCorpusCreated,
 }) => {
-  const [corpusName, setCorpusName] = useState('Epic of Gilgamesh');
-  const [cultureName, setCultureName] = useState('Mesopotamian / Sumerian');
-  const [era, setEra] = useState('c. 2100 BCE - 1200 BCE');
-  const [text, setText] = useState(SAMPLE_CUSTOM_TEXT);
+  const { lang, t } = useLanguage();
+  const sampleText = lang === 'fr' ? SAMPLE_CUSTOM_TEXT_FR : SAMPLE_CUSTOM_TEXT_EN;
+  const defaultTitle = lang === 'fr' ? "L'Épopée de Gilgamesh" : 'Epic of Gilgamesh';
+  const defaultCulture = lang === 'fr' ? 'Mésopotamienne / Sumérienne' : 'Mesopotamian / Sumerian';
+  const defaultEra = lang === 'fr' ? 'v. 2100 av. J.-C. - 1200 av. J.-C.' : 'c. 2100 BCE - 1200 BCE';
+
+  const [corpusName, setCorpusName] = useState(defaultTitle);
+  const [cultureName, setCultureName] = useState(defaultCulture);
+  const [era, setEra] = useState(defaultEra);
+  const [text, setText] = useState(sampleText);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleExtract = async () => {
     if (!text.trim() || text.length < 20) {
-      setError('Please provide at least a few sentences of mythological narrative.');
+      setError(
+        lang === 'fr'
+          ? 'Veuillez fournir au moins quelques phrases de récit mythologique.'
+          : 'Please provide at least a few sentences of mythological narrative.'
+      );
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const extractedGraph = await extractKnowledgeGraph(text, corpusName, cultureName, era);
+      const extractedGraph = await extractKnowledgeGraph(text, corpusName, cultureName, era, lang);
       onCorpusCreated(extractedGraph);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to extract knowledge graph');
+      setError(err.message || (lang === 'fr' ? "Échec de l'extraction du graphe" : 'Failed to extract knowledge graph'));
     } finally {
       setLoading(false);
     }
@@ -57,10 +74,10 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white font-serif">
-                AI Mythology Knowledge-Graph Ingestion
+                {t.extractor.title}
               </h2>
               <p className="text-xs text-slate-400">
-                Transform any epic or myth text into a full structured knowledge graph
+                {t.extractor.subtitle}
               </p>
             </div>
           </div>
@@ -84,40 +101,40 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="text-xs font-semibold text-slate-400 block mb-1">
-                Corpus / Saga Title
+                {t.extractor.corpusTitle}
               </label>
               <input
                 id="extractor-corpus-name-input"
                 type="text"
                 value={corpusName}
                 onChange={(e) => setCorpusName(e.target.value)}
-                placeholder="e.g. Epic of Gilgamesh"
+                placeholder={lang === 'fr' ? 'ex. L’Épopée de Gilgamesh' : 'e.g. Epic of Gilgamesh'}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"
               />
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-400 block mb-1">
-                Culture / Tradition
+                {t.extractor.culture}
               </label>
               <input
                 id="extractor-culture-name-input"
                 type="text"
                 value={cultureName}
                 onChange={(e) => setCultureName(e.target.value)}
-                placeholder="e.g. Mesopotamian"
+                placeholder={lang === 'fr' ? 'ex. Mésopotamienne' : 'e.g. Mesopotamian'}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"
               />
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-400 block mb-1">
-                Era / Date
+                {t.extractor.era}
               </label>
               <input
                 id="extractor-era-input"
                 type="text"
                 value={era}
                 onChange={(e) => setEra(e.target.value)}
-                placeholder="e.g. c. 2100 BCE"
+                placeholder={lang === 'fr' ? 'ex. v. 2100 av. J.-C.' : 'e.g. c. 2100 BCE'}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-pink-500"
               />
             </div>
@@ -126,14 +143,14 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-semibold text-slate-400 block">
-                Primary Narrative Text
+                {t.extractor.primaryNarrative}
               </label>
               <button
                 type="button"
-                onClick={() => setText(SAMPLE_CUSTOM_TEXT)}
+                onClick={() => setText(sampleText)}
                 className="text-[11px] text-pink-400 hover:text-pink-300 transition-colors"
               >
-                Load Gilgamesh Example
+                {t.extractor.loadSample}
               </button>
             </div>
             <textarea
@@ -141,16 +158,14 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
               rows={8}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Paste any mythological story, folklore, or epic passage here..."
+              placeholder={t.extractor.placeholder}
               className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-pink-500 font-mono leading-relaxed"
             />
           </div>
 
           <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
-            <div className="font-semibold text-slate-300">Extraction Guarantee:</div>
-            <p>
-              Gemini will automatically extract Characters, Places, Objects, Events, and Concepts with explicit relational predicates and primary source quotes.
-            </p>
+            <div className="font-semibold text-slate-300">{t.extractor.guaranteeTitle}</div>
+            <p>{t.extractor.guaranteeDesc}</p>
           </div>
         </div>
 
@@ -160,7 +175,7 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white transition-colors"
           >
-            Cancel
+            {t.extractor.cancel}
           </button>
           <button
             id="extractor-submit-btn"
@@ -171,12 +186,12 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
             {loading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Extracting Graph with AI...
+                {t.extractor.extracting}
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                Extract & Ingest Corpus
+                {t.extractor.extractButton}
               </>
             )}
           </button>
@@ -185,3 +200,4 @@ export const CorpusExtractorModal: React.FC<CorpusExtractorModalProps> = ({
     </div>
   );
 };
+

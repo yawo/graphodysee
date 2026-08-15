@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PodcastEpisode, PodcastScriptSection, GraphNode } from '../types/mythology';
 import { globalAudioPlayer } from '../utils/audio';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   Play,
   Pause,
@@ -32,6 +33,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
   allNodes,
   onSelectNode,
 }) => {
+  const { lang, t } = useLanguage();
   if (!episode) return null;
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -45,6 +47,11 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
   const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Update audio player language
+  useEffect(() => {
+    globalAudioPlayer.setLang(lang);
+  }, [lang]);
+
   // Initialize voices
   useEffect(() => {
     const updateVoices = () => {
@@ -53,8 +60,8 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
       if (voices.length > 0 && !selectedVoice) {
         const preferred = voices.find(
           (v) =>
-            v.lang.startsWith('en') &&
-            (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('UK') || v.name.includes('Male'))
+            v.lang.startsWith(lang) &&
+            (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('Thomas') || v.name.includes('Audrey') || v.name.includes('Male'))
         );
         setSelectedVoice(preferred ? preferred.name : voices[0].name);
       }
@@ -64,7 +71,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.onvoiceschanged = updateVoices;
     }
-  }, []);
+  }, [lang]);
 
   // Hook audio player state
   useEffect(() => {
@@ -191,7 +198,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  GraphRAG Audio Episode
+                  {t.podcast.audioEpisode}
                 </span>
                 <span className="text-xs text-slate-400">{episode.corpus_name}</span>
               </div>
@@ -205,10 +212,10 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
             <button
               onClick={handleCopyScript}
               className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition-colors"
-              title="Copy transcript"
+              title={t.podcast.copy}
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-              {copied ? 'Copied' : 'Copy'}
+              {copied ? t.podcast.copied : t.podcast.copy}
             </button>
             <button
               onClick={handleDownloadMarkdown}
@@ -246,7 +253,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
 
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-white">
-                Chapter {activeSectionIndex + 1} of {episode.sections.length}
+                {t.podcast.chapter(activeSectionIndex + 1, episode.sections.length)}
               </span>
               <span className="text-xs text-amber-300 font-medium">
                 {activeSection?.title || 'Prologue'}
@@ -303,8 +310,8 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
           {/* Left Column: Synchronized Interactive Transcript (7 cols) */}
           <div className="lg:col-span-7 border-r border-slate-700/60 overflow-y-auto p-6 space-y-4 bg-[#0d1424]">
             <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800">
-              <span className="font-semibold uppercase tracking-wider">Synchronized Transcript</span>
-              <span>Click any section to jump narration</span>
+              <span className="font-semibold uppercase tracking-wider">{t.podcast.syncedTranscript}</span>
+              <span>{t.podcast.clickToJump}</span>
             </div>
 
             {episode.sections.map((section, idx) => {
@@ -330,7 +337,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
                       </span>
                     </div>
                     <span className="text-[11px] text-slate-400 italic">
-                      Voice: {section.speaker}
+                      {t.podcast.voice}: {section.speaker}
                     </span>
                   </div>
 
@@ -352,19 +359,19 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
           <div className="lg:col-span-5 overflow-y-auto p-6 space-y-4 bg-slate-900/40">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-300 border-b border-slate-800 pb-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Grounded Subgraph Facts (Current Chapter)</span>
+              <span>{t.podcast.groundedFacts}</span>
             </div>
 
             {/* Active Chapter Header */}
             <div className="bg-slate-800/60 rounded-xl p-3.5 border border-slate-700/60">
               <span className="text-[10px] font-mono text-amber-400 uppercase tracking-wide">
-                Active Chapter #{activeSectionIndex + 1}
+                {t.podcast.activeChapter(activeSectionIndex + 1)}
               </span>
               <h3 className="text-base font-bold text-white font-serif mt-0.5">
                 {activeSection?.title}
               </h3>
               <p className="text-xs text-slate-400 mt-1">
-                Narrated by: <strong className="text-slate-200">{activeSection?.speaker}</strong>
+                {t.podcast.narratedBy}: <strong className="text-slate-200">{activeSection?.speaker}</strong>
               </p>
             </div>
 
@@ -372,7 +379,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
             {activeSection?.grounded_node_ids && activeSection.grounded_node_ids.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                  Referenced Graph Entities
+                  {t.podcast.referencedEntities}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {activeSection.grounded_node_ids.map((nodeId) => {
@@ -396,7 +403,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
             {activeSection?.grounded_facts && activeSection.grounded_facts.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                  Verified Knowledge Graph Facts
+                  {t.podcast.verifiedFacts}
                 </span>
                 <div className="space-y-2">
                   {activeSection.grounded_facts.map((fact, idx) => (
@@ -415,7 +422,7 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
             {activeSection?.source_refs && activeSection.source_refs.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
-                  Primary Text Citations
+                  {t.podcast.primaryCitations}
                 </span>
                 <div className="space-y-2">
                   {activeSection.source_refs.map((ref, idx) => (
@@ -443,3 +450,4 @@ export const PodcastModal: React.FC<PodcastModalProps> = ({
     </div>
   );
 };
+

@@ -11,6 +11,7 @@ export class MythicAudioPlayer {
   private onStateChange?: (playing: boolean, paused: boolean) => void;
   private playbackRate: number = 1.0;
   private voice: SpeechSynthesisVoice | null = null;
+  private currentLang: string = 'en';
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -36,13 +37,27 @@ export class MythicAudioPlayer {
     }
   }
 
+  public setLang(lang: string) {
+    this.currentLang = lang;
+    this.voice = null; // reset to pick best localized voice
+  }
+
   public getAvailableVoices(): SpeechSynthesisVoice[] {
+    if (!this.synth) return [];
+    const voices = this.synth.getVoices();
+    if (this.currentLang === 'fr') {
+      return voices.filter((v) => v.lang.startsWith('fr'));
+    }
+    return voices.filter((v) => v.lang.startsWith('en'));
+  }
+
+  public getAllVoices(): SpeechSynthesisVoice[] {
     if (!this.synth) return [];
     return this.synth.getVoices();
   }
 
   public setVoice(voiceName: string) {
-    const voices = this.getAvailableVoices();
+    const voices = this.getAllVoices();
     const found = voices.find((v) => v.name === voiceName);
     if (found) {
       this.voice = found;
@@ -51,10 +66,12 @@ export class MythicAudioPlayer {
 
   public startPodcast(
     sections: { text: string; speaker: string; title: string; timestamp: string }[],
-    startIndex: number = 0
+    startIndex: number = 0,
+    lang: string = 'en'
   ) {
     if (!this.synth) return;
     this.stop();
+    this.currentLang = lang;
     this.sections = sections;
     this.currentSectionIndex = startIndex;
     this.isPlaying = true;
@@ -79,18 +96,38 @@ export class MythicAudioPlayer {
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.rate = this.playbackRate;
     utterance.pitch = 0.95; // slightly deeper mythic resonance
+    utterance.lang = this.currentLang === 'fr' ? 'fr-FR' : 'en-US';
 
-    // Select voice if available
+    // Select voice if explicitly picked
     if (this.voice) {
       utterance.voice = this.voice;
     } else {
       const voices = this.synth.getVoices();
-      const preferred = voices.find(
-        (v) =>
-          v.lang.startsWith('en') &&
-          (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google') || v.name.includes('UK') || v.name.includes('Male') || v.name.includes('Female'))
-      );
-      if (preferred) utterance.voice = preferred;
+      if (this.currentLang === 'fr') {
+        const preferredFr = voices.find(
+          (v) =>
+            v.lang.startsWith('fr') &&
+            (v.name.includes('Natural') ||
+              v.name.includes('Neural') ||
+              v.name.includes('Google') ||
+              v.name.includes('Thomas') ||
+              v.name.includes('Amélie') ||
+              v.name.includes('Audrey'))
+        ) || voices.find((v) => v.lang.startsWith('fr'));
+        if (preferredFr) utterance.voice = preferredFr;
+      } else {
+        const preferredEn = voices.find(
+          (v) =>
+            v.lang.startsWith('en') &&
+            (v.name.includes('Natural') ||
+              v.name.includes('Neural') ||
+              v.name.includes('Google') ||
+              v.name.includes('UK') ||
+              v.name.includes('Male') ||
+              v.name.includes('Female'))
+        ) || voices.find((v) => v.lang.startsWith('en'));
+        if (preferredEn) utterance.voice = preferredEn;
+      }
     }
 
     utterance.onend = () => {
@@ -138,7 +175,7 @@ export class MythicAudioPlayer {
   public togglePlayPause() {
     if (!this.isPlaying) {
       if (this.sections.length > 0) {
-        this.startPodcast(this.sections, this.currentSectionIndex);
+        this.startPodcast(this.sections, this.currentSectionIndex, this.currentLang);
       }
     } else if (this.isPaused) {
       this.resume();
@@ -159,3 +196,4 @@ export class MythicAudioPlayer {
 }
 
 export const globalAudioPlayer = new MythicAudioPlayer();
+

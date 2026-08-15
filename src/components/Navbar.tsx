@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CorpusManifest, GraphNode } from '../types/mythology';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   Sparkles,
   Compass,
@@ -12,6 +13,7 @@ import {
   Flame,
   Globe,
   Disc,
+  Languages,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -39,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenEpisodeLibrary,
   savedEpisodesCount,
 }) => {
+  const { lang, setLang, t } = useLanguage();
   const [corpusDropdownOpen, setCorpusDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -105,7 +108,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
             <div className="flex flex-col text-left">
               <span className="font-semibold text-white truncate max-w-[150px] sm:max-w-[200px]">
-                {activeManifest?.name || 'Select Corpus'}
+                {activeManifest?.name || t.nav.selectCorpus}
               </span>
               <span className="text-[10px] text-slate-400 font-mono leading-none">
                 {activeManifest?.culture}
@@ -121,8 +124,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="absolute left-0 top-full mt-2 w-80 bg-[#0d1424] border border-slate-700/80 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150"
             >
               <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800 flex items-center justify-between">
-                <span>Select Mythology Corpus</span>
-                <span>{corpora.length} Available</span>
+                <span>{t.nav.selectCorpus}</span>
+                <span>{corpora.length} {t.nav.available}</span>
               </div>
               <div className="py-1 max-h-80 overflow-y-auto space-y-1">
                 {corpora.map((corpus) => {
@@ -156,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div className="text-right flex-shrink-0">
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                          {corpus.node_count || 0} nodes
+                          {corpus.node_count || 0} {t.dossier.nodesLabel}
                         </span>
                       </div>
                     </div>
@@ -175,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-pink-300 border border-slate-700 hover:border-pink-500/40 transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Ingest New Myth / Custom Corpus with AI
+                  {t.nav.ingestShortcut}
                 </button>
               </div>
             </div>
@@ -193,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setSearchFocused(true)}
-            placeholder={`Search ${nodes.length} entities in ${activeManifest?.name}...`}
+            placeholder={t.nav.searchPlaceholder(nodes.length, activeManifest?.name || '')}
             className="w-full pl-9 pr-4 py-1.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-inner"
           />
         </div>
@@ -223,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </p>
                 </div>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
-                  {node.type}
+                  {t.types[node.type] || node.type}
                 </span>
               </div>
             ))}
@@ -231,17 +234,50 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
       </div>
 
-      {/* Right Navigation Action Buttons */}
+      {/* Right Navigation Action Buttons & Language Switcher */}
       <div className="flex items-center gap-2">
+        {/* Language Switcher Toggle */}
+        <div
+          id="language-switcher"
+          className="flex items-center bg-slate-900/90 p-0.5 rounded-xl border border-slate-700/80 text-xs font-semibold"
+        >
+          <button
+            id="lang-fr-btn"
+            onClick={() => setLang('fr')}
+            className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
+              lang === 'fr'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Passer l'application en Français"
+          >
+            <span>🇫🇷</span>
+            <span>FR</span>
+          </button>
+          <button
+            id="lang-en-btn"
+            onClick={() => setLang('en')}
+            className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
+              lang === 'en'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Switch application to English"
+          >
+            <span>🇬🇧</span>
+            <span>EN</span>
+          </button>
+        </div>
+
         {/* GraphRAG QA Search */}
         <button
           id="open-hybrid-search-btn"
           onClick={onOpenHybridSearch}
           className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition-all flex items-center gap-1.5"
-          title="GraphRAG Natural Language Engine"
+          title={t.nav.graphRagQa}
         >
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="hidden sm:inline">GraphRAG QA</span>
+          <span className="hidden sm:inline">{t.nav.graphRagQa}</span>
         </button>
 
         {/* Path Finder */}
@@ -249,10 +285,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           id="open-pathfinder-btn"
           onClick={onOpenPathFinder}
           className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium transition-colors flex items-center gap-1.5"
-          title="Find shortest mythic connection path"
+          title={t.nav.pathFinder}
         >
           <Compass className="w-3.5 h-3.5 text-amber-400" />
-          <span className="hidden sm:inline">Path Finder</span>
+          <span className="hidden sm:inline">{t.nav.pathFinder}</span>
         </button>
 
         {/* Ingest Corpus */}
@@ -260,10 +296,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           id="open-extractor-btn"
           onClick={onOpenExtractor}
           className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-semibold transition-colors flex items-center gap-1.5"
-          title="Extract Knowledge Graph from Raw Story Text"
+          title={t.nav.ingestText}
         >
           <Plus className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">Ingest Text</span>
+          <span className="hidden md:inline">{t.nav.ingestText}</span>
         </button>
 
         {/* Podcast Episodes Library */}
@@ -271,10 +307,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           id="open-episodes-library-btn"
           onClick={onOpenEpisodeLibrary}
           className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition-colors flex items-center gap-1.5 relative"
-          title="View Generated Podcast Episodes"
+          title={t.nav.podcasts}
         >
           <Radio className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">Podcasts</span>
+          <span className="hidden md:inline">{t.nav.podcasts}</span>
           {savedEpisodesCount > 0 && (
             <span className="w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[10px] font-bold flex items-center justify-center">
               {savedEpisodesCount}
@@ -285,3 +321,4 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+

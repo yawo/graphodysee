@@ -14,6 +14,7 @@ import {
   generatePodcast,
   saveCustomCorpus,
 } from './api/client';
+import { useLanguage } from './i18n/LanguageContext';
 import { Navbar } from './components/Navbar';
 import { GraphCanvas } from './components/GraphCanvas';
 import { EntityDossier } from './components/EntityDossier';
@@ -34,6 +35,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const { lang, t } = useLanguage();
   const [corpora, setCorpora] = useState<CorpusManifest[]>([]);
   const [activeCorpusId, setActiveCorpusId] = useState<string>('greek-odyssey');
   const [graph, setGraph] = useState<MythologyGraph | null>(null);
@@ -86,29 +88,34 @@ export default function App() {
     });
   };
 
-  // 1. Initial Corpora Fetch
+  // 1. Initial Corpora Fetch and re-fetch on language change
   useEffect(() => {
     async function loadCorpora() {
       try {
-        const manifests = await fetchCorpora();
+        const manifests = await fetchCorpora(lang);
         setCorpora(manifests);
       } catch (err) {
         console.error('Failed to load corpora:', err);
       }
     }
     loadCorpora();
-  }, []);
+  }, [lang]);
 
-  // 2. Fetch Graph when Active Corpus Changes
+  // 2. Fetch Graph when Active Corpus or Language Changes
   useEffect(() => {
     async function loadGraph() {
       setLoadingGraph(true);
-      setSelectedNode(null);
+      // Preserve selected node if possible across language switch
+      const currentSelectedId = selectedNode?.id;
       setHighlightedPath(null);
       setSearchHighlightId(null);
       try {
-        const g = await fetchGraph(activeCorpusId);
+        const g = await fetchGraph(activeCorpusId, lang);
         setGraph(g);
+        if (currentSelectedId) {
+          const match = g.nodes.find((n) => n.id === currentSelectedId);
+          if (match) setSelectedNode(match);
+        }
       } catch (err) {
         console.error('Failed to load graph:', err);
       } finally {
@@ -116,7 +123,7 @@ export default function App() {
       }
     }
     loadGraph();
-  }, [activeCorpusId]);
+  }, [activeCorpusId, lang]);
 
   // Global Keyboard Shortcuts (Cmd+K for GraphRAG search, Esc to close/deselect)
   useEffect(() => {
@@ -156,7 +163,7 @@ export default function App() {
   ) => {
     setIsGeneratingPodcast(true);
     try {
-      const episode = await generatePodcast(entity.id, activeCorpusId, tone, duration);
+      const episode = await generatePodcast(entity.id, activeCorpusId, tone, duration, lang);
       setActiveEpisode(episode);
       saveEpisodeToArchive(episode);
     } catch (err: any) {
@@ -201,7 +208,7 @@ export default function App() {
           {loadingGraph ? (
             <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-[#0a0f1d] text-slate-400">
               <div className="w-10 h-10 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
-              <span className="font-serif text-sm">Traversing mythological constellations...</span>
+              <span className="font-serif text-sm">{t.canvas.traversing}</span>
             </div>
           ) : graph ? (
             <GraphCanvas
@@ -227,7 +234,7 @@ export default function App() {
                   {graph.manifest.name}
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
-                  {graph.nodes.length} entities • {graph.edges.length} relations
+                  {graph.nodes.length} {t.dossier.nodesLabel} • {graph.edges.length} {t.dossier.relationsLabel}
                 </span>
               </div>
               <p className="text-slate-300 leading-relaxed">
@@ -235,7 +242,7 @@ export default function App() {
               </p>
               {graph.manifest.featured_nodes && graph.manifest.featured_nodes.length > 0 && (
                 <div className="pt-2 border-t border-slate-800 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-slate-400 font-medium">Explore:</span>
+                  <span className="text-slate-400 font-medium">{t.canvas.explorePrefix}</span>
                   {graph.manifest.featured_nodes.map((fid) => {
                     const nodeObj = graph.nodes.find((n) => n.id === fid);
                     if (!nodeObj) return null;
@@ -330,3 +337,4 @@ export default function App() {
     </div>
   );
 }
+

@@ -5,7 +5,13 @@ import { norseMythologyCorpus } from './norse-mythology';
 import { hinduMythologyCorpus } from './hindu-mythology';
 import { catholicSaintsCorpus } from './catholic-saints';
 
-export const INITIAL_CORPORA: Record<string, MythologyGraph> = {
+import { greekOdysseyCorpusFr } from './greek-odyssey-fr';
+import { egyptianMythologyCorpusFr } from './egyptian-mythology-fr';
+import { norseMythologyCorpusFr } from './norse-mythology-fr';
+import { hinduMythologyCorpusFr } from './hindu-mythology-fr';
+import { catholicSaintsCorpusFr } from './catholic-saints-fr';
+
+export const INITIAL_CORPORA_EN: Record<string, MythologyGraph> = {
   'greek-odyssey': greekOdysseyCorpus,
   'egyptian-mythology': egyptianMythologyCorpus,
   'norse-mythology': norseMythologyCorpus,
@@ -13,27 +19,43 @@ export const INITIAL_CORPORA: Record<string, MythologyGraph> = {
   'catholic-saints': catholicSaintsCorpus,
 };
 
-// Compute dynamic node & edge counts
-Object.keys(INITIAL_CORPORA).forEach((key) => {
-  const g = INITIAL_CORPORA[key];
-  g.manifest.node_count = g.nodes.length;
-  g.manifest.edge_count = g.edges.length;
+export const INITIAL_CORPORA_FR: Record<string, MythologyGraph> = {
+  'greek-odyssey': greekOdysseyCorpusFr,
+  'egyptian-mythology': egyptianMythologyCorpusFr,
+  'norse-mythology': norseMythologyCorpusFr,
+  'hindu-mythology': hinduMythologyCorpusFr,
+  'catholic-saints': catholicSaintsCorpusFr,
+};
+
+export const INITIAL_CORPORA = INITIAL_CORPORA_EN;
+
+// Compute dynamic node & edge counts for both language corpora
+[INITIAL_CORPORA_EN, INITIAL_CORPORA_FR].forEach((dict) => {
+  Object.keys(dict).forEach((key) => {
+    const g = dict[key];
+    g.manifest.node_count = g.nodes.length;
+    g.manifest.edge_count = g.edges.length;
+  });
 });
 
-export function getAllManifests(): CorpusManifest[] {
-  return Object.values(INITIAL_CORPORA).map((g) => g.manifest);
+export function getAllManifests(lang: 'en' | 'fr' = 'en'): CorpusManifest[] {
+  const dict = lang === 'fr' ? INITIAL_CORPORA_FR : INITIAL_CORPORA_EN;
+  return Object.values(dict).map((g) => g.manifest);
 }
 
-export function getCorpusGraph(corpusId: string): MythologyGraph | undefined {
-  return INITIAL_CORPORA[corpusId];
+export function getCorpusGraph(corpusId: string, lang: 'en' | 'fr' = 'en'): MythologyGraph | undefined {
+  const dict = lang === 'fr' ? INITIAL_CORPORA_FR : INITIAL_CORPORA_EN;
+  return dict[corpusId] || dict['greek-odyssey'];
 }
 
 export function getLocalSubgraph(
   corpusId: string,
   nodeId: string,
-  hops: number = 1
+  hops: number = 1,
+  lang: 'en' | 'fr' = 'en'
 ): { centerNode?: GraphNode; nodes: GraphNode[]; edges: GraphEdge[]; relatedEvents: GraphNode[] } {
-  const graph = INITIAL_CORPORA[corpusId];
+  const dict = lang === 'fr' ? INITIAL_CORPORA_FR : INITIAL_CORPORA_EN;
+  const graph = dict[corpusId] || dict['greek-odyssey'];
   if (!graph) {
     return { nodes: [], edges: [], relatedEvents: [] };
   }
@@ -76,9 +98,11 @@ export function getLocalSubgraph(
 export function findShortestPath(
   corpusId: string,
   startId: string,
-  endId: string
+  endId: string,
+  lang: 'en' | 'fr' = 'en'
 ): { nodes: GraphNode[]; edges: GraphEdge[] } | null {
-  const graph = INITIAL_CORPORA[corpusId];
+  const dict = lang === 'fr' ? INITIAL_CORPORA_FR : INITIAL_CORPORA_EN;
+  const graph = dict[corpusId] || dict['greek-odyssey'];
   if (!graph || startId === endId) return null;
 
   // Build adjacency
@@ -130,3 +154,4 @@ export function findShortestPath(
 
   return null;
 }
+
