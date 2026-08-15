@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CorpusManifest, GraphNode } from '../types/mythology';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useTheme } from '../theme/ThemeContext';
 import {
   Sparkles,
   Compass,
@@ -14,7 +15,10 @@ import {
   Globe,
   Disc,
   Languages,
+  Sun,
+  Moon,
 } from 'lucide-react';
+
 
 interface NavbarProps {
   corpora: CorpusManifest[];
@@ -42,6 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   savedEpisodesCount,
 }) => {
   const { lang, setLang, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [corpusDropdownOpen, setCorpusDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -236,6 +241,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right Navigation Action Buttons & Language Switcher */}
       <div className="flex items-center gap-2">
+        {/* Theme Switcher Toggle (Light / Dark) */}
+        <button
+          id="theme-toggle-btn"
+          onClick={toggleTheme}
+          className="p-2 rounded-xl bg-slate-900/90 dark:bg-slate-900/90 hover:bg-slate-800 dark:hover:bg-slate-800 border border-slate-700/80 dark:border-slate-700/80 text-amber-400 dark:text-amber-400 transition-all flex items-center justify-center shadow-sm cursor-pointer"
+          title={theme === 'dark' ? t.nav.lightTheme : t.nav.darkTheme}
+          aria-label={t.nav.toggleTheme}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" />
+          ) : (
+            <Moon className="w-4 h-4 text-amber-500 transition-transform hover:-rotate-12" />
+          )}
+        </button>
+
         {/* Language Switcher Toggle */}
         <div
           id="language-switcher"

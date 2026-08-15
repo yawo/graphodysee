@@ -6,6 +6,7 @@ import {
   GraphPath,
 } from '../types/mythology';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useTheme } from '../theme/ThemeContext';
 import {
   ZoomIn,
   ZoomOut,
@@ -68,6 +69,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   searchHighlightId,
 }) => {
   const { lang, t } = useLanguage();
+  const { theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
