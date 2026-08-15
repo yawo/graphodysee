@@ -1,0 +1,6 @@
+{
+  "name": "GraphOdyssée",
+  "description": "Interactive corpus-agnostic mythology knowledge-graph explorer and GraphRAG podcast generator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
