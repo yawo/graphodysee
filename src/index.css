@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Theme CSS variables & Base styling */
+:root {
+  --bg-main: #060a14;
+  --bg-surface: #0a0f1d;
+  --bg-card: #0d1424;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-subtle: rgba(51, 65, 85, 0.7);
+}
+
+:root.light {
+  --bg-main: #f7f3ea;
+  --bg-surface: #fcf8f0;
+  --bg-card: #fffdfa;
+  --text-main: #1c1917;
+  --text-muted: #78716c;
+  --border-subtle: rgba(217, 199, 172, 0.8);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.light body {
+  background-color: #f7f3ea;
+  color: #1c1917;
+}
+
+.dark body {
+  background-color: #060a14;
+  color: #f8fafc;
+}

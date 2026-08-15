@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   savedEpisodesCount,
 }) => {
   const { lang, setLang, t } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [corpusDropdownOpen, setCorpusDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -239,22 +239,40 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
       </div>
 
-      {/* Right Navigation Action Buttons & Language Switcher */}
+      {/* Right Navigation Action Buttons, Theme Switcher & Language Switcher */}
       <div className="flex items-center gap-2">
-        {/* Theme Switcher Toggle (Light / Dark) */}
-        <button
-          id="theme-toggle-btn"
-          onClick={toggleTheme}
-          className="p-2 rounded-xl bg-slate-900/90 dark:bg-slate-900/90 hover:bg-slate-800 dark:hover:bg-slate-800 border border-slate-700/80 dark:border-slate-700/80 text-amber-400 dark:text-amber-400 transition-all flex items-center justify-center shadow-sm cursor-pointer"
-          title={theme === 'dark' ? t.nav.lightTheme : t.nav.darkTheme}
-          aria-label={t.nav.toggleTheme}
+        {/* Theme Switcher (Dark / Light Segmented Toggle) */}
+        <div
+          id="theme-switcher"
+          className="flex items-center bg-slate-900/90 p-0.5 rounded-xl border border-slate-700/80 text-xs font-semibold"
         >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" />
-          ) : (
-            <Moon className="w-4 h-4 text-amber-500 transition-transform hover:-rotate-12" />
-          )}
-        </button>
+          <button
+            id="theme-dark-btn"
+            onClick={() => setTheme('dark')}
+            className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title={t.nav.darkTheme}
+          >
+            <Moon className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{lang === 'fr' ? 'Sombre' : 'Dark'}</span>
+          </button>
+          <button
+            id="theme-light-btn"
+            onClick={() => setTheme('light')}
+            className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 cursor-pointer ${
+              theme === 'light'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title={t.nav.lightTheme}
+          >
+            <Sun className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{lang === 'fr' ? 'Clair' : 'Light'}</span>
+          </button>
+        </div>
 
         {/* Language Switcher Toggle */}
         <div

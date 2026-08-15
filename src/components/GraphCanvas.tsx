@@ -287,6 +287,28 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     ctx.save();
     ctx.clearRect(0, 0, width, height);
 
+    // Light parchment or celestial grid background
+    ctx.save();
+    ctx.strokeStyle = theme === 'light' ? 'rgba(180, 160, 130, 0.25)' : 'rgba(51, 65, 85, 0.2)';
+    ctx.lineWidth = 1;
+    const gridSize = 70;
+    const startX = Math.floor((-width / 2 - transform.x) / (transform.k * gridSize)) * gridSize;
+    const endX = Math.ceil((width / 2 - transform.x) / (transform.k * gridSize)) * gridSize;
+    const startY = Math.floor((-height / 2 - transform.y) / (transform.k * gridSize)) * gridSize;
+    const endY = Math.ceil((height / 2 - transform.y) / (transform.k * gridSize)) * gridSize;
+
+    ctx.beginPath();
+    for (let x = startX; x <= endX; x += gridSize) {
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, endY);
+    }
+    for (let y = startY; y <= endY; y += gridSize) {
+      ctx.moveTo(startX, y);
+      ctx.lineTo(endX, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
     // Apply 2D/3D pan & zoom transform
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
@@ -348,7 +370,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         ctx.lineWidth = 1;
         ctx.shadowBlur = 0;
       } else {
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+        ctx.strokeStyle = theme === 'light' ? 'rgba(120, 113, 108, 0.4)' : 'rgba(148, 163, 184, 0.35)';
         ctx.lineWidth = 1.3;
         ctx.shadowBlur = 0;
       }
@@ -362,7 +384,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         const midY = (edge.source.y + edge.target.y) / 2;
 
         ctx.font = '10px sans-serif';
-        ctx.fillStyle = isPathEdge ? '#fef08a' : isConnectedToSelected ? '#bae6fd' : '#94a3b8';
+        ctx.fillStyle = isPathEdge
+          ? (theme === 'light' ? '#b45309' : '#fef08a')
+          : isConnectedToSelected
+          ? (theme === 'light' ? '#0369a1' : '#bae6fd')
+          : (theme === 'light' ? '#57534e' : '#94a3b8');
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(edge.label, midX, midY - 6);
@@ -375,7 +401,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
 
         ctx.beginPath();
         ctx.arc(px, py, isPathEdge ? 3.5 : 2, 0, Math.PI * 2);
-        ctx.fillStyle = isPathEdge ? '#fef08a' : isConnectedToSelected ? '#7dd3fc' : '#cbd5e1';
+        ctx.fillStyle = isPathEdge
+          ? (theme === 'light' ? '#d97706' : '#fef08a')
+          : isConnectedToSelected
+          ? (theme === 'light' ? '#0284c7' : '#7dd3fc')
+          : (theme === 'light' ? '#78716c' : '#cbd5e1');
         ctx.shadowColor = isPathEdge ? '#f59e0b' : '#38bdf8';
         ctx.shadowBlur = 6;
         ctx.fill();
@@ -410,58 +440,55 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       // Node Body Circle
       ctx.beginPath();
       ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2);
-      ctx.fillStyle = isDimmed ? 'rgba(30, 41, 59, 0.5)' : colors.fill;
+      ctx.fillStyle = isDimmed
+        ? (theme === 'light' ? 'rgba(214, 211, 209, 0.5)' : 'rgba(30, 41, 59, 0.5)')
+        : colors.fill;
       ctx.fill();
 
       // Node Stroke
       ctx.lineWidth = isSelected ? 3.5 : isPath ? 3 : 2;
       ctx.strokeStyle = isDimmed
-        ? 'rgba(100, 116, 139, 0.3)'
+        ? (theme === 'light' ? 'rgba(168, 162, 158, 0.4)' : 'rgba(100, 116, 139, 0.3)')
         : isPath
-        ? '#fef08a'
+        ? '#f59e0b'
         : isSearchHit
-        ? '#f472b6'
+        ? '#ec4899'
         : colors.stroke;
       ctx.stroke();
 
       // Node Type Icon Indicator (Tiny dot in center)
       ctx.beginPath();
       ctx.arc(node.x, node.y, isSelected ? 4.5 : 3, 0, Math.PI * 2);
-      ctx.fillStyle = isDimmed ? '#64748b' : '#ffffff';
+      ctx.fillStyle = isDimmed ? (theme === 'light' ? '#a8a29e' : '#64748b') : '#ffffff';
       ctx.fill();
 
       // Draw Label
       if (showLabels || isSelected || isPath || isSearchHit || isHovered || transform.k > 0.85) {
         ctx.font = `${isSelected ? 'bold 13px' : '11px'} sans-serif`;
-        ctx.fillStyle = isDimmed
-          ? 'rgba(148, 163, 184, 0.35)'
-          : isSelected
-          ? '#ffffff'
-          : isPath
-          ? '#fef08a'
-          : colors.text;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 
         // Background tag for readability
         const labelText = node.label;
         const textWidth = ctx.measureText(labelText).width;
-        ctx.fillStyle = isDimmed ? 'rgba(15, 23, 42, 0.4)' : 'rgba(15, 23, 42, 0.75)';
-        ctx.fillRect(node.x - textWidth / 2 - 4, node.y + currentRadius + 3, textWidth + 8, 14);
+        ctx.fillStyle = isDimmed
+          ? (theme === 'light' ? 'rgba(245, 239, 227, 0.6)' : 'rgba(15, 23, 42, 0.4)')
+          : (theme === 'light' ? 'rgba(255, 253, 250, 0.92)' : 'rgba(15, 23, 42, 0.85)');
+        ctx.fillRect(node.x - textWidth / 2 - 4, node.y + currentRadius + 3, textWidth + 8, 15);
 
         ctx.fillStyle = isDimmed
-          ? 'rgba(148, 163, 184, 0.45)'
+          ? (theme === 'light' ? 'rgba(120, 113, 108, 0.5)' : 'rgba(148, 163, 184, 0.45)')
           : isSelected
-          ? '#ffffff'
+          ? (theme === 'light' ? '#92400e' : '#ffffff')
           : isPath
-          ? '#fef08a'
-          : '#f8fafc';
+          ? (theme === 'light' ? '#b45309' : '#fef08a')
+          : (theme === 'light' ? '#1c1917' : '#f8fafc');
         ctx.fillText(labelText, node.x, node.y + currentRadius + 4);
       }
     });
 
     ctx.restore();
-  }, [transform, is3DMode, showLabels, selectedNodeId, highlightedPath, activeTypeFilter, searchHighlightId, hoveredNode]);
+  }, [transform, is3DMode, showLabels, selectedNodeId, highlightedPath, activeTypeFilter, searchHighlightId, hoveredNode, theme]);
 
   // Handle Resize
   useEffect(() => {
